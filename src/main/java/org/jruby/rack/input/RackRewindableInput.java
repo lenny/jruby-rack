@@ -71,8 +71,13 @@ public class RackRewindableInput extends RackBaseInput {
 
         private MemoryBufferRackInput(ReadableByteChannel input) throws IOException {
             memoryBuffer = ByteBuffer.allocate(getBufferSize());
-            input.read(memoryBuffer);
+
+            for(;;) {
+                if(input.read(memoryBuffer) < 0 || !memoryBuffer.hasRemaining()) break;
+            }
+			
             full = !memoryBuffer.hasRemaining();
+			
             memoryBuffer.flip();
         }
 
