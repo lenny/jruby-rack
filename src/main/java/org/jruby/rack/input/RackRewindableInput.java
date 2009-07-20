@@ -72,6 +72,15 @@ public class RackRewindableInput extends RackBaseInput {
         private MemoryBufferRackInput(ReadableByteChannel input) throws IOException {
             memoryBuffer = ByteBuffer.allocate(getBufferSize());
 
+            # read may return 0 bytes if none are available
+            # at time of call. 
+            #
+            # From ReadableByteChannel#read API docs:
+            # A socket channel in non-blocking mode, for example, 
+            # cannot read any more bytes than are immediately available from
+            # the socket's input buffer
+            #
+            # Fix for: http://kenai.com/jira/browse/JRUBY_RACK-10
             for(;;) {
                 if(input.read(memoryBuffer) < 0 || !memoryBuffer.hasRemaining()) break;
             }
